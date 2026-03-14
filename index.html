@@ -129,6 +129,10 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
 .sg.s2 .sn { color:var(--amber); } .sg.s3 .sn { color:var(--red); }
 .sg .sd { font-size:.72rem; color:rgba(240,238,234,.45); line-height:1.65; font-family:'Shippori Mincho',serif; }
 
+/* ── S3 mobile inline canvas ── */
+.s3-mobile-canvas { display:none; }
+@media(max-width:700px) { .s3-mobile-canvas { display:block; width:100%; height:200px; margin:0 auto 1rem; border-radius:6px; } }
+
 /* ════════════════════════════════════
    SLIDE 4 — AI READS
 ════════════════════════════════════ */
@@ -340,6 +344,7 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
     <p class="fade-up d2" style="margin:0 auto 2rem;text-align:center;" data-ja="非構造から完全構造まで、すべての情報はスペクトラム上に存在する。AIが台頭した今、そのスペクトラムは<strong>構造化の方向へ急速にシフト</strong>している。" data-en="All information exists on a spectrum from unstructured to fully structured. In the age of AI, this spectrum is <strong>rapidly shifting toward structure</strong>.">
       非構造から完全構造まで、すべての情報はスペクトラム上に存在する。AIが台頭した今、そのスペクトラムは<strong>構造化の方向へ急速にシフト</strong>している。
     </p>
+    <canvas id="c3m" class="s3-mobile-canvas fade-up d2"></canvas>
     <div class="spec-grid fade-up d3">
       <div class="sg s0">
         <div class="ico">📄</div>
@@ -836,91 +841,85 @@ try {
 // SLIDE 3 — Evolving molecule structures spectrum
 // ═══════════════════════════════════════════════════════
 try {
+  // Shared drawing functions for slide 3 spectrum icons
+  function drawChaos(ctx,cx,cy,r,t,alpha){
+    const pts=Array.from({length:8},(_,i)=>{
+      const a=rand(0,TAU), dist=rand(r*.2,r*.85);
+      return {x:cx+Math.cos(a+t*.5)*dist, y:cy+Math.sin(a+t*.7)*dist};
+    });
+    pts.forEach((p,i)=>{
+      if(i<pts.length-1){
+        ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(pts[i+1].x,pts[i+1].y);
+        ctx.strokeStyle=`rgba(0,170,255,${alpha*.3})`; ctx.lineWidth=.8; ctx.stroke();
+      }
+      ctx.beginPath(); ctx.arc(p.x,p.y,2,0,TAU);
+      ctx.fillStyle=`rgba(0,170,255,${alpha*.7})`; ctx.fill();
+    });
+  }
+  function drawSemiStruct(ctx,cx,cy,r,t,alpha){
+    const levels=[[{x:cx,y:cy-r*.4}],[{x:cx-r*.3,y:cy},{x:cx+r*.3,y:cy}],[{x:cx-r*.45,y:cy+r*.4},{x:cx-r*.1,y:cy+r*.4},{x:cx+r*.2,y:cy+r*.4}]];
+    levels[0].forEach(p=>{
+      ctx.beginPath(); ctx.arc(p.x+Math.sin(t)*3,p.y,3.5,0,TAU);
+      ctx.fillStyle=`rgba(0,255,170,${alpha*.9})`; ctx.fill();
+    });
+    levels.forEach((level,li)=>{
+      if(li===0) return;
+      level.forEach((p,pi)=>{
+        const parent=levels[li-1][Math.min(pi>>1,levels[li-1].length-1)];
+        ctx.beginPath(); ctx.moveTo(parent.x,parent.y); ctx.lineTo(p.x,p.y);
+        ctx.strokeStyle=`rgba(0,255,170,${alpha*.35})`; ctx.lineWidth=.8; ctx.stroke();
+        ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,TAU);
+        ctx.fillStyle=`rgba(0,255,170,${alpha*.8})`; ctx.fill();
+      });
+    });
+  }
+  function drawJSON(ctx,cx,cy,r,t,alpha){
+    const lines=['{','  "key": "val",','  "arr": [1,2]','}'];
+    ctx.save(); ctx.globalAlpha=alpha*.7;
+    ctx.font='8px JetBrains Mono,monospace'; ctx.textAlign='center';
+    lines.forEach((l,i)=>{
+      const y=cy-r*.3+i*13+Math.sin(t+i)*2;
+      ctx.fillStyle=i===0||i===3?'rgba(255,136,0,.9)':'rgba(240,238,234,.7)';
+      ctx.fillText(l,cx,y);
+    });
+    ctx.restore();
+  }
+  function drawGraph(ctx,cx,cy,r,t,alpha){
+    const n=6;
+    const npts=Array.from({length:n},(_,i)=>{
+      const a=TAU/n*i+t*.1;
+      return {x:cx+Math.cos(a)*r*.5, y:cy+Math.sin(a)*r*.5};
+    });
+    for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+      ctx.beginPath(); ctx.moveTo(npts[i].x,npts[i].y); ctx.lineTo(npts[j].x,npts[j].y);
+      ctx.strokeStyle=`rgba(255,51,102,${alpha*.15})`; ctx.lineWidth=.6; ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(cx,cy,5,0,TAU);
+    ctx.fillStyle=`rgba(255,51,102,${alpha*.9})`; ctx.fill();
+    npts.forEach(p=>{
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p.x,p.y);
+      ctx.strokeStyle=`rgba(255,51,102,${alpha*.4})`; ctx.lineWidth=1; ctx.stroke();
+      ctx.beginPath(); ctx.arc(p.x,p.y,3,0,TAU);
+      ctx.fillStyle=`rgba(255,51,102,${alpha*.85})`; ctx.fill();
+    });
+  }
+
+  const s3Zones=[
+    {fn:drawChaos,   col:'0,170,255',   lbl:'NON-STRUCTURED', x:.12},
+    {fn:drawSemiStruct,col:'0,255,170', lbl:'SEMI-STRUCTURED', x:.36},
+    {fn:drawJSON,    col:'255,136,0',   lbl:'QUASI-STRUCTURED',x:.62},
+    {fn:drawGraph,   col:'255,51,102',  lbl:'FULLY-STRUCTURED',x:.87},
+  ];
+
+  // Desktop: background canvas c3
   const g = setupCanvas('c3');
   if(g){
     const {ctx,W,H} = g;
     let t=0;
-    // 4 zones across width, each showing different structure level
-    function drawChaos(cx,cy,r,t,alpha){
-      // Chaotic molecule — random connections
-      const pts=Array.from({length:8},(_,i)=>{
-        const a=rand(0,TAU), dist=rand(r*.2,r*.85);
-        return {x:cx+Math.cos(a+t*.5)*dist, y:cy+Math.sin(a+t*.7)*dist};
-      });
-      pts.forEach((p,i)=>{
-        if(i<pts.length-1){
-          ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(pts[i+1].x,pts[i+1].y);
-          ctx.strokeStyle=`rgba(0,170,255,${alpha*.3})`; ctx.lineWidth=.8; ctx.stroke();
-        }
-        ctx.beginPath(); ctx.arc(p.x,p.y,2,0,TAU);
-        ctx.fillStyle=`rgba(0,170,255,${alpha*.7})`; ctx.fill();
-      });
-    }
-    function drawSemiStruct(cx,cy,r,t,alpha){
-      // Partial tree structure
-      const levels=[[{x:cx,y:cy-r*.4}],[{x:cx-r*.3,y:cy},{x:cx+r*.3,y:cy}],[{x:cx-r*.45,y:cy+r*.4},{x:cx-r*.1,y:cy+r*.4},{x:cx+r*.2,y:cy+r*.4}]];
-      levels[0].forEach(p=>{
-        ctx.beginPath(); ctx.arc(p.x+Math.sin(t)*3,p.y,3.5,0,TAU);
-        ctx.fillStyle=`rgba(0,255,170,${alpha*.9})`; ctx.fill();
-      });
-      levels.forEach((level,li)=>{
-        if(li===0) return;
-        level.forEach((p,pi)=>{
-          const parent=levels[li-1][Math.min(pi>>1,levels[li-1].length-1)];
-          ctx.beginPath(); ctx.moveTo(parent.x,parent.y); ctx.lineTo(p.x,p.y);
-          ctx.strokeStyle=`rgba(0,255,170,${alpha*.35})`; ctx.lineWidth=.8; ctx.stroke();
-          ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,TAU);
-          ctx.fillStyle=`rgba(0,255,170,${alpha*.8})`; ctx.fill();
-        });
-      });
-    }
-    function drawJSON(cx,cy,r,t,alpha){
-      // JSON-like nested brackets visualization
-      const lines=['{','  "key": "val",','  "arr": [1,2]','}'];
-      ctx.save(); ctx.globalAlpha=alpha*.7;
-      ctx.font='8px JetBrains Mono,monospace'; ctx.textAlign='center';
-      lines.forEach((l,i)=>{
-        const y=cy-r*.3+i*13+Math.sin(t+i)*2;
-        ctx.fillStyle=i===0||i===3?'rgba(255,136,0,.9)':'rgba(240,238,234,.7)';
-        ctx.fillText(l,cx,y);
-      });
-      ctx.restore();
-    }
-    function drawGraph(cx,cy,r,t,alpha){
-      // Perfect geometric graph
-      const n=6;
-      const npts=Array.from({length:n},(_,i)=>{
-        const a=TAU/n*i+t*.1;
-        return {x:cx+Math.cos(a)*r*.5, y:cy+Math.sin(a)*r*.5};
-      });
-      // All edges
-      for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
-        ctx.beginPath(); ctx.moveTo(npts[i].x,npts[i].y); ctx.lineTo(npts[j].x,npts[j].y);
-        ctx.strokeStyle=`rgba(255,51,102,${alpha*.15})`; ctx.lineWidth=.6; ctx.stroke();
-      }
-      // Center node
-      ctx.beginPath(); ctx.arc(cx,cy,5,0,TAU);
-      ctx.fillStyle=`rgba(255,51,102,${alpha*.9})`; ctx.fill();
-      npts.forEach(p=>{
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p.x,p.y);
-        ctx.strokeStyle=`rgba(255,51,102,${alpha*.4})`; ctx.lineWidth=1; ctx.stroke();
-        ctx.beginPath(); ctx.arc(p.x,p.y,3,0,TAU);
-        ctx.fillStyle=`rgba(255,51,102,${alpha*.85})`; ctx.fill();
-      });
-    }
-
-    const zones=[
-      {fn:drawChaos,   col:'0,170,255',   lbl:'NON-STRUCTURED', x:.12},
-      {fn:drawSemiStruct,col:'0,255,170', lbl:'SEMI-STRUCTURED', x:.36},
-      {fn:drawJSON,    col:'255,136,0',   lbl:'QUASI-STRUCTURED',x:.62},
-      {fn:drawGraph,   col:'255,51,102',  lbl:'FULLY-STRUCTURED',x:.87},
-    ];
-
-    function frame(){
+    function frameBg(){
       ctx.clearRect(0,0,W(),H());
       t+=.015;
       const w=W(),h=H();
-
       // Gradient background stripe
       const grad=ctx.createLinearGradient(0,0,w,0);
       grad.addColorStop(0,'rgba(0,170,255,.04)');
@@ -929,91 +928,91 @@ try {
       grad.addColorStop(1,'rgba(255,51,102,.05)');
       ctx.fillStyle=grad; ctx.fillRect(0,0,w,h);
 
-      const isMobile = w <= 700;
-
-      if (isMobile) {
-        // Mobile: 2x2 grid right below the paragraph text
-        const gridCy = h * 0.38;
-        const gapX = w * 0.24;
-        const gapY = h * 0.11;
-        const mR = Math.min(w * 0.11, 45);
-        const positions = [
-          { x: w * 0.28, y: gridCy - gapY },
-          { x: w * 0.72, y: gridCy - gapY },
-          { x: w * 0.28, y: gridCy + gapY },
-          { x: w * 0.72, y: gridCy + gapY },
-        ];
-
-        // Spectrum bar above the grid
-        const barY = gridCy - gapY - mR - 18;
-        const barGrad = ctx.createLinearGradient(w * .1, 0, w * .9, 0);
-        barGrad.addColorStop(0, 'rgba(0,170,255,.6)');
-        barGrad.addColorStop(.33, 'rgba(0,255,170,.6)');
-        barGrad.addColorStop(.66, 'rgba(255,136,0,.6)');
-        barGrad.addColorStop(1, 'rgba(255,51,102,.6)');
-        ctx.fillStyle = barGrad;
-        ctx.fillRect(w * .1, barY, w * .8, 2);
-
-        zones.forEach((z, i) => {
-          const pos = positions[i];
-          z.fn(pos.x, pos.y, mR, t, .85);
-          ctx.fillStyle = `rgba(${z.col},.6)`;
-          ctx.font = '6.5px JetBrains Mono,monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(z.lbl, pos.x, pos.y + mR + 12);
+      if(w > 700) {
+        const barY=h*.76;
+        const barGrad=ctx.createLinearGradient(w*.05,0,w*.95,0);
+        barGrad.addColorStop(0,'rgba(0,170,255,.6)');
+        barGrad.addColorStop(.33,'rgba(0,255,170,.6)');
+        barGrad.addColorStop(.66,'rgba(255,136,0,.6)');
+        barGrad.addColorStop(1,'rgba(255,51,102,.6)');
+        ctx.fillStyle=barGrad; ctx.fillRect(w*.05,barY,w*.9,2);
+        s3Zones.forEach(z=>{
+          const cx=z.x*w, cy=h*.85, r=Math.min(w*.1,90);
+          z.fn(ctx,cx,cy,r,t,.85);
+          ctx.fillStyle=`rgba(${z.col},.6)`;
+          ctx.font='7.5px JetBrains Mono,monospace'; ctx.textAlign='center';
+          ctx.fillText(z.lbl, cx, cy+r+14);
         });
-
-        // Arrow below the grid
-        const arrowY = gridCy + gapY + mR + 24;
+        const arrowY=h*.96;
         ctx.save();
-        ctx.globalAlpha = .5 + Math.sin(t) * 0.15;
-        ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1;
-        ctx.setLineDash([4, 6]);
-        ctx.beginPath(); ctx.moveTo(w * .1, arrowY); ctx.lineTo(w * .9, arrowY); ctx.stroke();
+        ctx.globalAlpha=.5+Math.sin(t)*0.15;
+        ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=1;
+        ctx.setLineDash([4,6]);
+        ctx.beginPath(); ctx.moveTo(w*.08,arrowY); ctx.lineTo(w*.92,arrowY); ctx.stroke();
         ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.moveTo(w * .9, arrowY); ctx.lineTo(w * .89, arrowY - 3); ctx.lineTo(w * .89, arrowY + 3); ctx.closePath();
-        ctx.fillStyle = 'rgba(255,136,0,.5)'; ctx.fill();
-        ctx.font = '6px JetBrains Mono,monospace'; ctx.textAlign = 'center';
-        ctx.fillStyle = 'rgba(255,255,255,.35)';
-        ctx.fillText('AI時代の圧力', w * .5, arrowY - 6);
-        ctx.restore();
-      } else {
-        // Desktop: original horizontal layout
-        const barY = h * .76, barH = 2;
-        const barGrad = ctx.createLinearGradient(w * .05, 0, w * .95, 0);
-        barGrad.addColorStop(0, 'rgba(0,170,255,.6)');
-        barGrad.addColorStop(.33, 'rgba(0,255,170,.6)');
-        barGrad.addColorStop(.66, 'rgba(255,136,0,.6)');
-        barGrad.addColorStop(1, 'rgba(255,51,102,.6)');
-        ctx.fillStyle = barGrad; ctx.fillRect(w * .05, barY, w * .9, barH);
-
-        zones.forEach(z => {
-          const cx = z.x * w, cy = h * .85, r = Math.min(w * .1, 90);
-          z.fn(cx, cy, r, t, .85);
-          ctx.fillStyle = `rgba(${z.col},.6)`;
-          ctx.font = '7.5px JetBrains Mono,monospace'; ctx.textAlign = 'center';
-          ctx.fillText(z.lbl, cx, cy + r + 14);
-        });
-
-        const arrowY = h * .96;
-        ctx.save();
-        ctx.globalAlpha = .5 + Math.sin(t) * 0.15;
-        ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1;
-        ctx.setLineDash([4, 6]);
-        ctx.beginPath(); ctx.moveTo(w * .08, arrowY); ctx.lineTo(w * .92, arrowY); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(w * .92, arrowY); ctx.lineTo(w * .91, arrowY - 4); ctx.lineTo(w * .91, arrowY + 4); ctx.closePath();
-        ctx.fillStyle = 'rgba(255,136,0,.5)'; ctx.fill();
-        ctx.font = '7px JetBrains Mono,monospace'; ctx.textAlign = 'center';
-        ctx.fillStyle = 'rgba(255,255,255,.35)';
-        ctx.fillText('AI時代の圧力', w * .5, arrowY - 8);
+        ctx.moveTo(w*.92,arrowY); ctx.lineTo(w*.91,arrowY-4); ctx.lineTo(w*.91,arrowY+4); ctx.closePath();
+        ctx.fillStyle='rgba(255,136,0,.5)'; ctx.fill();
+        ctx.font='7px JetBrains Mono,monospace'; ctx.textAlign='center';
+        ctx.fillStyle='rgba(255,255,255,.35)';
+        ctx.fillText('AI時代の圧力', w*.5, arrowY-8);
         ctx.restore();
       }
-      requestAnimationFrame(frame);
+      requestAnimationFrame(frameBg);
     }
-    frame();
+    frameBg();
+  }
+
+  // Mobile: inline canvas c3m (inside slide-content, always visible)
+  const gm = setupCanvas('c3m');
+  if(gm){
+    const {ctx:mctx,W:mW,H:mH} = gm;
+    let mt=0;
+    function frameMobile(){
+      const w=mW(), h=mH();
+      mctx.clearRect(0,0,w,h);
+      mt+=.015;
+      if(w===0||h===0){ requestAnimationFrame(frameMobile); return; }
+      // 4 icons in a row
+      const r=Math.min(w*0.09, 35);
+      const cy=h*0.45;
+      const positions=[.12,.36,.62,.87];
+
+      // Spectrum bar
+      const barY=cy-r-14;
+      const barGrad=mctx.createLinearGradient(w*.05,0,w*.95,0);
+      barGrad.addColorStop(0,'rgba(0,170,255,.6)');
+      barGrad.addColorStop(.33,'rgba(0,255,170,.6)');
+      barGrad.addColorStop(.66,'rgba(255,136,0,.6)');
+      barGrad.addColorStop(1,'rgba(255,51,102,.6)');
+      mctx.fillStyle=barGrad; mctx.fillRect(w*.05,barY,w*.9,2);
+
+      s3Zones.forEach((z,i)=>{
+        const cx=positions[i]*w;
+        z.fn(mctx,cx,cy,r,mt,.85);
+        mctx.fillStyle=`rgba(${z.col},.6)`;
+        mctx.font='5.5px JetBrains Mono,monospace'; mctx.textAlign='center';
+        mctx.fillText(z.lbl, cx, cy+r+10);
+      });
+
+      // Arrow
+      const arrowY=cy+r+22;
+      mctx.save();
+      mctx.globalAlpha=.5+Math.sin(mt)*0.15;
+      mctx.strokeStyle='rgba(255,255,255,.35)'; mctx.lineWidth=1;
+      mctx.setLineDash([4,6]);
+      mctx.beginPath(); mctx.moveTo(w*.05,arrowY); mctx.lineTo(w*.95,arrowY); mctx.stroke();
+      mctx.setLineDash([]);
+      mctx.beginPath();
+      mctx.moveTo(w*.95,arrowY); mctx.lineTo(w*.94,arrowY-3); mctx.lineTo(w*.94,arrowY+3); mctx.closePath();
+      mctx.fillStyle='rgba(255,136,0,.5)'; mctx.fill();
+      mctx.font='6px JetBrains Mono,monospace'; mctx.textAlign='center';
+      mctx.fillStyle='rgba(255,255,255,.35)';
+      mctx.fillText('AI時代の圧力', w*.5, arrowY-6);
+      mctx.restore();
+      requestAnimationFrame(frameMobile);
+    }
+    frameMobile();
   }
 } catch(e){ console.warn('c3 error',e); }
 
