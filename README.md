@@ -28,7 +28,7 @@
 
 | | 🔓 GitHub（全公開） | 🔐 Azure（認証付き） |
 |---|---|---|
-| **URL** | [GitHub上のHTMLソース](https://github.com/FukudaRikako/doc/blob/main/index.html) | [Azure上のサイト](https://gentle-pebble-053949610.1.azurestaticapps.net) |
+| **URL** | [GitHub上のHTMLソース](https://github.com/FukudaRikako/azure-entra-auth-demo/blob/main/index.html) | [Azure上のサイト](https://gentle-pebble-053949610.1.azurestaticapps.net) |
 | **アクセス** | 誰でも見れる | Entra ID ログインが必要 |
 | **シークレットブラウザで開くと** | そのまま見れる | ログイン画面が表示される ✋ |
 
