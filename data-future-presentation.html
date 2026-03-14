@@ -40,6 +40,12 @@ body { background:var(--bg); color:var(--white); font-family:'JetBrains Mono',mo
 /* ── PROGRESS ── */
 #progress { position:fixed; top:0; left:0; height:2px; width:0%; background:linear-gradient(90deg,var(--blue),var(--amber)); z-index:200; transition:width 0.15s; }
 
+/* ── LANG TOGGLE ── */
+#lang-toggle { position:fixed; top:1.2rem; right:1.5rem; z-index:300; display:flex; align-items:center; gap:0; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:2px; cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:.65rem; letter-spacing:.05em; user-select:none; -webkit-user-select:none; }
+#lang-toggle span { padding:4px 12px; border-radius:18px; color:var(--dim); transition:all .3s; }
+#lang-toggle span.active { background:rgba(0,170,255,.2); color:var(--blue); }
+@media(max-width:700px) { #lang-toggle { top:.8rem; right:.8rem; font-size:.58rem; } #lang-toggle span { padding:3px 8px; } }
+
 /* ── SLIDE NAV ── */
 #nav { position:fixed; right:1.5rem; top:50%; transform:translateY(-50%); z-index:200; display:flex; flex-direction:column; gap:0.6rem; }
 .nd { width:5px; height:5px; border-radius:50%; background:var(--dim); cursor:pointer; transition:all 0.3s; }
@@ -246,6 +252,11 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
 <div id="progress"></div>
 <canvas id="global-canvas"></canvas>
 
+<div id="lang-toggle" role="button" aria-label="Toggle language">
+  <span class="active" data-lang="ja">日本語</span>
+  <span data-lang="en">EN</span>
+</div>
+
 <nav id="nav">
   <div class="nd on" data-i="0"></div>
   <div class="nd" data-i="1"></div>
@@ -266,13 +277,13 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
   </div>
   <div class="slide-overlay"></div>
   <div class="slide-content">
-    <div class="lbl fade-up in">— データの進化論 —</div>
+    <div class="lbl fade-up in" data-ja="— データの進化論 —" data-en="— The Evolution of Data —">— データの進化論 —</div>
     <h1 class="hero-h1">
-      <span class="hl">すべては</span>
-      <span class="hl">構造になる</span>
+      <span class="hl" data-ja="すべては" data-en="Everything">すべては</span>
+      <span class="hl" data-ja="構造になる" data-en="Becomes Structure">構造になる</span>
     </h1>
     <div class="div c" style="opacity:0;animation:hfade .6s .4s forwards"></div>
-    <p class="hero-sub">PowerPointが気づかせてくれた、データのほんとうの姿</p>
+    <p class="hero-sub" data-ja="PowerPointが気づかせてくれた、データのほんとうの姿" data-en="What PowerPoint revealed about the true nature of data">PowerPointが気づかせてくれた、データのほんとうの姿</p>
   </div>
   <div class="scroll-hint"><span>SCROLL</span><div class="sh-line"></div></div>
 </section>
@@ -289,9 +300,9 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
     <!-- LEFT: text -->
     <div>
       <div class="lbl fade-up d1">Chapter 01 — The Hidden Truth</div>
-      <h2 class="fade-up d1">PowerPointは、<br><em>XMLだった。</em></h2>
+      <h2 class="fade-up d1" data-ja="PowerPointは、<br><em>XMLだった。</em>" data-en="PowerPoint was<br><em>XML all along.</em>">PowerPointは、<br><em>XMLだった。</em></h2>
       <div class="div fade-up d2"></div>
-      <p class="bigp fade-up d2">
+      <p class="bigp fade-up d2" data-ja="あの「.pptx」ファイル。実は中身は<strong>ZIPで圧縮されたXML</strong>の集合体だ。見た目は「スライド」でも、本質はタグで記述された<em>半構造データ</em>。" data-en="That &quot;.pptx&quot; file? It's actually a collection of <strong>ZIP-compressed XML</strong>. It looks like &quot;slides,&quot; but underneath it's <em>semi-structured data</em> written in tags.">
         あの「.pptx」ファイル。実は中身は<strong>ZIPで圧縮されたXML</strong>の集合体だ。見た目は「スライド」でも、本質はタグで記述された<em>半構造データ</em>。
       </p>
       <div class="codeblk fade-up d3">
@@ -305,8 +316,8 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
 <span class="xt">&lt;/p:sp&gt;</span>
       </div>
       <div class="reveal-box fade-up d4">
-        <h3>🔍 その意味するところ</h3>
-        <p>AIから見れば、PPTXは既に<strong>解析可能な半構造データ</strong>だった。スライドという幻想の裏に、タグの木構造が眠っていた。</p>
+        <h3 data-ja="🔍 その意味するところ" data-en="🔍 What this means">🔍 その意味するところ</h3>
+        <p data-ja="AIから見れば、PPTXは既に<strong>解析可能な半構造データ</strong>だった。スライドという幻想の裏に、タグの木構造が眠っていた。" data-en="From AI's perspective, PPTX was already <strong>parseable semi-structured data</strong>. Behind the illusion of slides, a tree of tags was waiting.">AIから見れば、PPTXは既に<strong>解析可能な半構造データ</strong>だった。スライドという幻想の裏に、タグの木構造が眠っていた。</p>
       </div>
     </div>
     <!-- RIGHT: visual rendered by canvas c2 -->
@@ -324,31 +335,31 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
   <div class="slide-overlay"></div>
   <div class="slide-content">
     <div class="lbl fade-up d1">Chapter 02 — The Spectrum</div>
-    <h2 class="fade-up d1">データには<br><em>グラデーション</em>がある</h2>
+    <h2 class="fade-up d1" data-ja="データには<br><em>グラデーション</em>がある" data-en="Data exists on<br>a <em>spectrum</em>">データには<br><em>グラデーション</em>がある</h2>
     <div class="div c fade-up d2"></div>
-    <p class="fade-up d2" style="margin:0 auto 2rem;text-align:center;">
+    <p class="fade-up d2" style="margin:0 auto 2rem;text-align:center;" data-ja="非構造から完全構造まで、すべての情報はスペクトラム上に存在する。AIが台頭した今、そのスペクトラムは<strong>構造化の方向へ急速にシフト</strong>している。" data-en="All information exists on a spectrum from unstructured to fully structured. In the age of AI, this spectrum is <strong>rapidly shifting toward structure</strong>.">
       非構造から完全構造まで、すべての情報はスペクトラム上に存在する。AIが台頭した今、そのスペクトラムは<strong>構造化の方向へ急速にシフト</strong>している。
     </p>
     <div class="spec-grid fade-up d3">
       <div class="sg s0">
         <div class="ico">📄</div>
-        <div class="sn">非構造データ</div>
-        <div class="sd">自然言語・手書き。意味はあるが、機械には霧の中</div>
+        <div class="sn" data-ja="非構造データ" data-en="Unstructured">非構造データ</div>
+        <div class="sd" data-ja="自然言語・手書き。意味はあるが、機械には霧の中" data-en="Natural language & handwriting. Meaningful to humans, fog to machines">自然言語・手書き。意味はあるが、機械には霧の中</div>
       </div>
       <div class="sg s1">
         <div class="ico">📊</div>
-        <div class="sn">半構造データ</div>
-        <div class="sd">PPTX・DOCX・HTML。形式の骨格はあるが意味は曖昧</div>
+        <div class="sn" data-ja="半構造データ" data-en="Semi-structured">半構造データ</div>
+        <div class="sd" data-ja="PPTX・DOCX・HTML。形式の骨格はあるが意味は曖昧" data-en="PPTX, DOCX, HTML. Has a skeleton of format, but meaning is ambiguous">PPTX・DOCX・HTML。形式の骨格はあるが意味は曖昧</div>
       </div>
       <div class="sg s2">
         <div class="ico">🔗</div>
-        <div class="sn">準構造データ</div>
-        <div class="sd">JSON・XML・Markdown。機械を意識して設計された構造</div>
+        <div class="sn" data-ja="準構造データ" data-en="Quasi-structured">準構造データ</div>
+        <div class="sd" data-ja="JSON・XML・Markdown。機械を意識して設計された構造" data-en="JSON, XML, Markdown. Designed with machines in mind">JSON・XML・Markdown。機械を意識して設計された構造</div>
       </div>
       <div class="sg s3">
         <div class="ico">⚡</div>
-        <div class="sn">完全構造データ</div>
-        <div class="sd">RDF・GraphQL・Schema.org。意味まで含む、AIの母語</div>
+        <div class="sn" data-ja="完全構造データ" data-en="Fully Structured">完全構造データ</div>
+        <div class="sd" data-ja="RDF・GraphQL・Schema.org。意味まで含む、AIの母語" data-en="RDF, GraphQL, Schema.org. Encodes meaning itself — AI's native language">RDF・GraphQL・Schema.org。意味まで含む、AIの母語</div>
       </div>
     </div>
   </div>
@@ -365,30 +376,30 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
   <div class="slide-content">
     <div>
       <div class="lbl fade-up d1">Chapter 03 — AI Changes Everything</div>
-      <h2 class="fade-up d1">AIは、<em>すべてを</em><br>読み始めた</h2>
+      <h2 class="fade-up d1" data-ja="AIは、<em>すべてを</em><br>読み始めた" data-en="AI has begun<br>reading <em>everything</em>">AIは、<em>すべてを</em><br>読み始めた</h2>
       <div class="div fade-up d2"></div>
-      <p class="bigp fade-up d2" style="margin-bottom:1.5rem;">
+      <p class="bigp fade-up d2" style="margin-bottom:1.5rem;" data-ja="かつてデータの構造化は「人間のため」だった。今は違う——<em>AIが読むために</em>、データは構造化される時代が来た。" data-en="Structuring data used to be &quot;for humans.&quot; Not anymore — data is now structured <em>so AI can read it</em>.">
         かつてデータの構造化は「人間のため」だった。今は違う——<em>AIが読むために</em>、データは構造化される時代が来た。
       </p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" class="fade-up d3">
         <div class="cmp bef">
           <div class="cml">⏮ Before AI</div>
           <ul class="cml-list">
-            <li>人間がGUIで開いて読む</li>
-            <li>見た目のデザインが価値</li>
-            <li>ファイル形式は「容れ物」</li>
-            <li>意味は人間が解釈</li>
-            <li>検索はキーワード</li>
+            <li data-ja="人間がGUIで開いて読む" data-en="Humans open files in GUI">人間がGUIで開いて読む</li>
+            <li data-ja="見た目のデザインが価値" data-en="Visual design is the value">見た目のデザインが価値</li>
+            <li data-ja="ファイル形式は「容れ物」" data-en="File formats are containers">ファイル形式は「容れ物」</li>
+            <li data-ja="意味は人間が解釈" data-en="Humans interpret meaning">意味は人間が解釈</li>
+            <li data-ja="検索はキーワード" data-en="Search by keywords">検索はキーワード</li>
           </ul>
         </div>
         <div class="cmp aft">
           <div class="cml">✦ AI Era Now</div>
           <ul class="cml-list">
-            <li>AIがAPIで直接解析</li>
-            <li>意味的構造が価値の源泉</li>
-            <li>形式は表現の一形態</li>
-            <li>意味はモデルが推論</li>
-            <li>検索はベクトル近傍</li>
+            <li data-ja="AIがAPIで直接解析" data-en="AI parses directly via API">AIがAPIで直接解析</li>
+            <li data-ja="意味的構造が価値の源泉" data-en="Semantic structure is the source of value">意味的構造が価値の源泉</li>
+            <li data-ja="形式は表現の一形態" data-en="Format is just one form of expression">形式は表現の一形態</li>
+            <li data-ja="意味はモデルが推論" data-en="Models infer meaning">意味はモデルが推論</li>
+            <li data-ja="検索はベクトル近傍" data-en="Search by vector proximity">検索はベクトル近傍</li>
           </ul>
         </div>
       </div>
@@ -409,39 +420,39 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
   <div class="slide-content">
     <div>
       <div class="lbl fade-up d1">Chapter 04 — The Great Shift</div>
-      <h2 class="fade-up d1">構造化の<em>大波</em>が<br>来ている</h2>
+      <h2 class="fade-up d1" data-ja="構造化の<em>大波</em>が<br>来ている" data-en="A <em>great wave</em> of<br>structuring is coming">構造化の<em>大波</em>が<br>来ている</h2>
       <div class="div fade-up d2"></div>
       <div class="timeline fade-up d2">
         <div class="te">
           <div class="tl"></div>
           <div class="tc">
             <div class="era">2000s</div>
-            <h3>ドキュメントの時代</h3>
-            <p>WordやExcelがオフィスの言語。データはファイルの中に閉じ込められた。</p>
+            <h3 data-ja="ドキュメントの時代" data-en="The Document Era">ドキュメントの時代</h3>
+            <p data-ja="WordやExcelがオフィスの言語。データはファイルの中に閉じ込められた。" data-en="Word and Excel were the office language. Data was trapped inside files.">WordやExcelがオフィスの言語。データはファイルの中に閉じ込められた。</p>
           </div>
         </div>
         <div class="te">
           <div class="tl"></div>
           <div class="tc">
             <div class="era">2010s</div>
-            <h3>クラウドとAPIの時代</h3>
-            <p>Microsoft AzureとSaaS。データがクラウドに移行し、JSONが共通語になった。</p>
+            <h3 data-ja="クラウドとAPIの時代" data-en="The Cloud & API Era">クラウドとAPIの時代</h3>
+            <p data-ja="Microsoft AzureとSaaS。データがクラウドに移行し、JSONが共通語になった。" data-en="Microsoft Azure and SaaS. Data moved to the cloud, and JSON became the common language.">Microsoft AzureとSaaS。データがクラウドに移行し、JSONが共通語になった。</p>
           </div>
         </div>
         <div class="te">
           <div class="tl"></div>
           <div class="tc">
             <div class="era" style="color:var(--amber)">2020s — NOW</div>
-            <h3>AIと意味の時代</h3>
-            <p>LLMがあらゆるデータを読み解く。非構造が自動的に構造化される。</p>
+            <h3 data-ja="AIと意味の時代" data-en="The AI & Meaning Era">AIと意味の時代</h3>
+            <p data-ja="LLMがあらゆるデータを読み解く。非構造が自動的に構造化される。" data-en="LLMs read all types of data. Unstructured data is automatically structured.">LLMがあらゆるデータを読み解く。非構造が自動的に構造化される。</p>
           </div>
         </div>
         <div class="te">
           <div class="tl" style="background:linear-gradient(180deg,var(--amber),transparent)"></div>
           <div class="tc">
             <div class="era" style="color:var(--amber)">NEAR FUTURE</div>
-            <h3 style="color:var(--amber)">構造的インターネットの時代</h3>
-            <p>すべての情報がセマンティックな構造を持ち、ファイルという概念が消滅する。</p>
+            <h3 style="color:var(--amber)" data-ja="構造的インターネットの時代" data-en="The Structured Internet Era">構造的インターネットの時代</h3>
+            <p data-ja="すべての情報がセマンティックな構造を持ち、ファイルという概念が消滅する。" data-en="All information gains semantic structure, and the concept of 'files' disappears.">すべての情報がセマンティックな構造を持ち、ファイルという概念が消滅する。</p>
           </div>
         </div>
       </div>
@@ -460,14 +471,14 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
   <div class="slide-overlay"></div>
   <div class="slide-content">
     <div class="lbl fade-up d1">Chapter 05 — The Dissolution</div>
-    <h2 class="fade-up d1" style="text-align:center;">「ファイル」という<br>概念が、<em>溶ける</em></h2>
+    <h2 class="fade-up d1" style="text-align:center;" data-ja="「ファイル」という<br>概念が、<em>溶ける</em>" data-en="The concept of<br>&quot;files&quot; is <em>dissolving</em>">「ファイル」という<br>概念が、<em>溶ける</em></h2>
     <div class="div c fade-up d2"></div>
-    <p class="fade-up d2" style="margin:0 auto 1rem; text-align:center; max-width:540px;">
+    <p class="fade-up d2" style="margin:0 auto 1rem; text-align:center; max-width:540px;" data-ja="Word、PDF、Excel——私たちはこれまで、<strong>情報を「ファイル」という箱</strong>に入れて管理してきた。でも本当に大事なのは、箱ではなく<em>中身</em>だったはずだ。" data-en="Word, PDF, Excel — we've always managed information by putting it in <strong>boxes called &quot;files.&quot;</strong> But what truly mattered was never the box — it was the <em>content inside</em>.">
       Word、PDF、Excel——私たちはこれまで、<strong>情報を「ファイル」という箱</strong>に入れて管理してきた。でも本当に大事なのは、箱ではなく<em>中身</em>だったはずだ。
     </p>
     <div class="emerge fade-up d3">
-      <h3>✦ 箱がなくなったら何が起きる？</h3>
-      <p>たとえば、ひとつの企画書を作ったとする。今はWordファイルとして保存するが、未来では<em>「企画の中身」だけがクラウドに存在する</em>。それを「スライドで見たい」と言えばスライドになり、「要約して」と言えば3行にまとまり、「英語で」と言えば翻訳される。<strong>情報の見せ方は、AIがその場で作る時代</strong>になる。</p>
+      <h3 data-ja="✦ 箱がなくなったら何が起きる？" data-en="✦ What happens when the box disappears?">✦ 箱がなくなったら何が起きる？</h3>
+      <p data-ja="たとえば、ひとつの企画書を作ったとする。今はWordファイルとして保存するが、未来では<em>「企画の中身」だけがクラウドに存在する</em>。それを「スライドで見たい」と言えばスライドになり、「要約して」と言えば3行にまとまり、「英語で」と言えば翻訳される。<strong>情報の見せ方は、AIがその場で作る時代</strong>になる。" data-en="Imagine writing a proposal. Today you save it as a Word file. In the future, <em>only the content lives in the cloud</em>. Say &quot;show as slides&quot; and it becomes a deck. Say &quot;summarize&quot; and it's 3 lines. Say &quot;in English&quot; and it's translated. <strong>Presentation is generated by AI on demand.</strong>">たとえば、ひとつの企画書を作ったとする。今はWordファイルとして保存するが、未来では<em>「企画の中身」だけがクラウドに存在する</em>。それを「スライドで見たい」と言えばスライドになり、「要約して」と言えば3行にまとまり、「英語で」と言えば翻訳される。<strong>情報の見せ方は、AIがその場で作る時代</strong>になる。</p>
     </div>
   </div>
 </section>
@@ -483,15 +494,15 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
   <div class="slide-content">
     <div>
       <div class="lbl fade-up d1">Chapter 06 — The New World</div>
-      <h2 class="fade-up d1">これから変わる<br><em>6つのこと</em></h2>
+      <h2 class="fade-up d1" data-ja="これから変わる<br><em>6つのこと</em>" data-en="<em>Six things</em><br>that will change">これから変わる<br><em>6つのこと</em></h2>
       <div class="div fade-up d2"></div>
       <div class="vg fade-up d2">
-        <div class="vc"><div class="vn">01</div><div class="vt">中身と見た目が分かれる</div><div class="vd">同じ企画書が、頼み方ひとつでスライドにも報告書にも音声にもなる</div></div>
-        <div class="vc"><div class="vn">02</div><div class="vt">情報が自動でつながる</div><div class="vd">過去の調査データが、新しい提案書に自動で引用・反映される</div></div>
-        <div class="vc"><div class="vn">03</div><div class="vt">AIが作り、読み、直す</div><div class="vd">人が指示を出せば、AIが資料の作成から更新までを回してくれる</div></div>
-        <div class="vc"><div class="vn">04</div><div class="vt">過去の判断が未来の土台に</div><div class="vd">「前回なぜこう決めたか」をAIが覚えていて、次の行動に活かす</div></div>
-        <div class="vc"><div class="vn">05</div><div class="vt">あなた専用の知識ベース</div><div class="vd">仕事で得た知識・経験がAIに蓄積され、自分だけのデータベースになる</div></div>
-        <div class="vc"><div class="vn">06</div><div class="vt">インターネット＝巨大な知識庫</div><div class="vd">Webページの先にあるのは「見た目」でなく、AIが理解できる「意味のある情報」</div></div>
+        <div class="vc"><div class="vn">01</div><div class="vt" data-ja="中身と見た目が分かれる" data-en="Content & form separate">中身と見た目が分かれる</div><div class="vd" data-ja="同じ企画書が、頼み方ひとつでスライドにも報告書にも音声にもなる" data-en="The same proposal becomes slides, a report, or audio with a single request">同じ企画書が、頼み方ひとつでスライドにも報告書にも音声にもなる</div></div>
+        <div class="vc"><div class="vn">02</div><div class="vt" data-ja="情報が自動でつながる" data-en="Data connects automatically">情報が自動でつながる</div><div class="vd" data-ja="過去の調査データが、新しい提案書に自動で引用・反映される" data-en="Past research is automatically cited and reflected in new proposals">過去の調査データが、新しい提案書に自動で引用・反映される</div></div>
+        <div class="vc"><div class="vn">03</div><div class="vt" data-ja="AIが作り、読み、直す" data-en="AI creates, reads & revises">AIが作り、読み、直す</div><div class="vd" data-ja="人が指示を出せば、AIが資料の作成から更新までを回してくれる" data-en="Give instructions and AI handles creation through updates">人が指示を出せば、AIが資料の作成から更新までを回してくれる</div></div>
+        <div class="vc"><div class="vn">04</div><div class="vt" data-ja="過去の判断が未来の土台に" data-en="Past decisions build the future">過去の判断が未来の土台に</div><div class="vd" data-ja="「前回なぜこう決めたか」をAIが覚えていて、次の行動に活かす" data-en="AI remembers why you decided what you did, and applies it next time">「前回なぜこう決めたか」をAIが覚えていて、次の行動に活かす</div></div>
+        <div class="vc"><div class="vn">05</div><div class="vt" data-ja="あなた専用の知識ベース" data-en="Your personal knowledge base">あなた専用の知識ベース</div><div class="vd" data-ja="仕事で得た知識・経験がAIに蓄積され、自分だけのデータベースになる" data-en="Your work knowledge accumulates in AI, becoming your own database">仕事で得た知識・経験がAIに蓄積され、自分だけのデータベースになる</div></div>
+        <div class="vc"><div class="vn">06</div><div class="vt" data-ja="インターネット＝巨大な知識庫" data-en="Internet = Giant Knowledge Base">インターネット＝巨大な知識庫</div><div class="vd" data-ja="Webページの先にあるのは「見た目」でなく、AIが理解できる「意味のある情報」" data-en="Beyond web pages lies not &quot;appearance&quot; but &quot;meaningful information&quot; AI can understand">Webページの先にあるのは「見た目」でなく、AIが理解できる「意味のある情報」</div></div>
       </div>
     </div>
     <div style="min-height:420px;"></div>
@@ -508,18 +519,18 @@ em { font-style:normal; color:var(--blue); } strong { color:var(--white); font-w
   <div class="slide-overlay"></div>
   <div class="slide-content">
     <div class="lbl fade-up d1" style="text-align:center;">— Epilogue —</div>
-    <h1 class="fade-up d1" style="background:linear-gradient(135deg,var(--white) 20%,var(--amber) 50%,var(--blue) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;">情報は<br>自由になる</h1>
+    <h1 class="fade-up d1" style="background:linear-gradient(135deg,var(--white) 20%,var(--amber) 50%,var(--blue) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;" data-ja="情報は<br>自由になる" data-en="Information<br>becomes free">情報は<br>自由になる</h1>
     <div class="div c fade-up d2"></div>
-    <p class="fq fade-up d2">
+    <p class="fq fade-up d2" data-ja="これまで私たちは、情報を「ファイル」という<br>箱に詰めて持ち運んできた。<br>AIの時代、情報はその箱から飛び出し、<br><em>必要な人に、必要な形で、必要な瞬間に届く</em>ようになる。" data-en="Until now, we carried information in<br>boxes called &quot;files.&quot;<br>In the age of AI, information breaks free —<br><em>reaching the right person, in the right form, at the right moment.</em>">
       これまで私たちは、情報を「ファイル」という<br>
       箱に詰めて持ち運んできた。<br>
       AIの時代、情報はその箱から飛び出し、<br>
       <em>必要な人に、必要な形で、必要な瞬間に届く</em>ようになる。
     </p>
     <div class="fsyms fade-up d3">
-      <div class="fsym"><div class="sym" style="color:var(--blue)">∞</div><div class="syml">あらゆる情報が整理される</div></div>
-      <div class="fsym"><div class="sym" style="color:var(--amber)">∀</div><div class="syml">すべての人のために</div></div>
-      <div class="fsym"><div class="sym" style="color:var(--white)">→</div><div class="syml">この流れは止まらない</div></div>
+      <div class="fsym"><div class="sym" style="color:var(--blue)">∞</div><div class="syml" data-ja="あらゆる情報が整理される" data-en="All information, organized">あらゆる情報が整理される</div></div>
+      <div class="fsym"><div class="sym" style="color:var(--amber)">∀</div><div class="syml" data-ja="すべての人のために" data-en="For everyone">すべての人のために</div></div>
+      <div class="fsym"><div class="sym" style="color:var(--white)">→</div><div class="syml" data-ja="この流れは止まらない" data-en="This trend won't stop">この流れは止まらない</div></div>
     </div>
     <div class="finale-tag fade-up d4">
       <span style="color:var(--dim)">&lt;</span><span style="color:var(--blue)">future</span><span style="color:var(--dim)">&gt;</span>
@@ -1569,6 +1580,24 @@ setTimeout(()=>{
     }
   });
 }, 800);
+
+// ═══════════════════════════════════════════════════════
+// LANGUAGE TOGGLE
+// ═══════════════════════════════════════════════════════
+{
+  let currentLang = 'ja';
+  const toggle = document.getElementById('lang-toggle');
+  const spans = toggle.querySelectorAll('span');
+
+  toggle.addEventListener('click', () => {
+    currentLang = currentLang === 'ja' ? 'en' : 'ja';
+    spans.forEach(s => s.classList.toggle('active', s.dataset.lang === currentLang));
+    document.querySelectorAll('[data-ja][data-en]').forEach(el => {
+      el.innerHTML = el.getAttribute('data-' + currentLang);
+    });
+    document.documentElement.lang = currentLang;
+  });
+}
 </script>
 </body>
 </html>
