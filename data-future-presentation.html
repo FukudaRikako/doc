@@ -930,7 +930,7 @@ try {
       ctx.fillStyle=grad; ctx.fillRect(0,0,w,h);
 
       // Spectrum bar at bottom of visual area
-      const barY=h*.72, barH=2;
+      const barY=h*.76, barH=2;
       const barGrad=ctx.createLinearGradient(w*.05,0,w*.95,0);
       barGrad.addColorStop(0,'rgba(0,170,255,.6)');
       barGrad.addColorStop(.33,'rgba(0,255,170,.6)');
@@ -939,19 +939,16 @@ try {
       ctx.fillStyle=barGrad; ctx.fillRect(w*.05,barY,w*.9,barH);
 
       zones.forEach(z=>{
-        const cx=z.x*w, cy=h*.42, r=Math.min(w*.1,90);
+        const cx=z.x*w, cy=h*.85, r=Math.min(w*.1,90);
         z.fn(cx,cy,r,t,.85);
         // Label
         ctx.fillStyle=`rgba(${z.col},.6)`;
         ctx.font='7.5px JetBrains Mono,monospace'; ctx.textAlign='center';
-        ctx.fillText(z.lbl, cx, barY+18);
-        // Connecting tick
-        ctx.beginPath(); ctx.moveTo(cx,barY); ctx.lineTo(cx,barY+8);
-        ctx.strokeStyle=`rgba(${z.col},.4)`; ctx.lineWidth=1; ctx.stroke();
+        ctx.fillText(z.lbl, cx, cy+r+14);
       });
 
       // Arrow indicating direction of change
-      const arrowY=h*.78;
+      const arrowY=h*.96;
       ctx.save();
       ctx.globalAlpha=.5+Math.sin(t)*0.15;
       ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=1;
